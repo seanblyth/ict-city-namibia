@@ -1,6 +1,9 @@
 body {
-  padding-top: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+body > .container {
+  padding-top: 60px;
 }
 
 a {
