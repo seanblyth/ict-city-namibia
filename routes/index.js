@@ -44,7 +44,7 @@ router.post('/upload', multipartyMiddleware, function(req, res, next) {
     var newPath = "./public/uploads/" + getDateTime() + '-' + req.files
       .uploadFile.name;
     fs.writeFile(newPath, data, function(err) {
-      res.status(301).redirect('/', {
+      res.render('home', {
         active: {
           home: true
         },
