@@ -87,7 +87,6 @@ router.put('/profile', passport.authenticate('local-signup', {
   successRedirect: '/profile',
   failureRedirect: '/profile',
   failureFlash: true,
-  user: req.user,
 }));
 
 router.get('/logout', function(req, res) {
