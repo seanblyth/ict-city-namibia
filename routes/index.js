@@ -83,11 +83,50 @@ router.get('/profile', isLoggedIn, function(req, res) {
   });
 });
 
-router.put('/profile', passport.authenticate('local-signup', {
-  successRedirect: '/profile',
-  failureRedirect: '/profile',
-  failureFlash: true,
-}));
+router.put('/update/:id', function(req, res) {
+  user.findById(user.local.id, function(err, bear) {
+    console.log(req.body);
+    user.local.fname = req.body.fname;
+    user.local.lname = req.body.lname;
+    user.local.country = req.body.country;
+    user.local.occupation = req.body.occupation;
+    user.local.company = req.body.company;
+    user.local.phone = req.body.phone;
+    user.local.structural = req.body.structural;
+    user.local.civils = req.body.civils;
+    user.local.electrical = req.body.electrical;
+    user.local.plumbing = req.body.plumbing;
+    user.local.carpentry = req.body.carpentry;
+    user.local.roofing = req.body.roofing;
+    user.local.flooring = req.body.flooring;
+    user.local.shopfitting = req.body.shopfitting;
+    user.local.doorswindows = req.body.doorswindows;
+    user.local.network = req.body.network;
+    user.local.hardware = req.body.hardware;
+    user.local.telecom = req.body.telecom;
+    user.local.biometrics = req.body.biometrics;
+    user.local.airconditioning = req.body.airconditioning;
+    user.local.software = req.body.software;
+    user.local.email = email;
+    user.local.password = user.generateHash(
+      password);
+
+    user.save(function(err) {
+      if (err)
+        res.send(err);
+      res.json({
+        message: 'Profile updated!'
+      });
+    });
+
+    res.render('profile', {
+      active: {
+        profile: true
+      },
+      user: req.user,
+    });
+  });
+});
 
 router.get('/logout', function(req, res) {
   req.logout();
@@ -145,5 +184,6 @@ function getDateTime() {
   var day = date.getDate();
   day = (day < 10 ? "0" : "") + day;
 
-  return year + ":" + month + ":" + day + ":" + hour + ":" + min + ":" + sec;
+  return year + ":" + month + ":" + day + ":" + hour + ":" + min + ":" +
+    sec;
 }

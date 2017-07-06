@@ -1,9 +1,9 @@
 var express = require('express');
-var logger = require('morgan');
 var path = require('path');
 var favicon = require('serve-favicon');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var logger = require("./utils/logger");
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -19,7 +19,9 @@ var passport = require('passport');
 var configDB = require('./config/database.js');
 var LocalStrategy = require('passport-local').Strategy;
 
-mongoose.connect(configDB.mainDb);
+mongoose.connect(configDB.mainDb, {
+  useMongoClient: true
+});
 
 var db = mongoose.connection;
 
@@ -38,6 +40,11 @@ db.once('disconnected', function() {
 
 var app = module.exports = express();
 
+logger.debug("Overriding 'Express' logger");
+app.use(morgan('combined', {
+  "stream": logger.stream
+}));
+
 app.set('view engine', 'hbs');
 
 app.engine('hbs', hbs.express4({
@@ -48,7 +55,6 @@ app.engine('hbs', hbs.express4({
 
 app.set('views', path.join(__dirname, '/views'));
 
-app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: false
@@ -67,8 +73,6 @@ app.use('/', routes);
 app.use('/users', users);
 
 require('./config/passport')(passport);
-
-app.use(morgan('combined'));
 
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
