@@ -4,10 +4,8 @@ var favicon = require('serve-favicon');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var logger = require("./utils/logger");
-
 var routes = require('./routes/index');
 var users = require('./routes/users');
-
 var hbs = require('express-hbs');
 var mongoose = require('mongoose');
 var flash = require('connect-flash');
@@ -52,6 +50,23 @@ app.engine('hbs', hbs.express4({
   partialsDir: __dirname + '/views/partials',
   layoutsDir: __dirname + '/views/layouts'
 }));
+
+hbs.registerHelper('select', function(value, options) {
+  // Create a select element
+  var select = document.createElement('select');
+
+  // Populate it with the option HTML
+  select.innerHTML = options.fn(this);
+
+  // Set the value
+  select.value = value;
+  // Find the selected node, if it exists, add the selected attribute to it
+  if (select.children[select.selectedIndex])
+    select.children[select.selectedIndex].setAttribute('selected',
+      'selected');
+
+  return select.innerHTML;
+});
 
 app.set('views', path.join(__dirname, '/views'));
 
