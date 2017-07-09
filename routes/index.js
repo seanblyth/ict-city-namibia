@@ -35,7 +35,6 @@ router.get('/visa', function(req, res, next) {
 });
 
 router.get('/visa/download', function(req, res) {
-  process.chdir('../');
   var file = "./ict-city-namibia/public/documents/visa-application.pdf";
   res.download(file);
 });
