@@ -35,8 +35,8 @@ router.get('/visa', function(req, res, next) {
 });
 
 router.get('/visa/download', function(req, res) {
-  var file = __dirname + "/public/documents/visa-application.pdf";
-  logger.debug("xxx This is the download directory: " + file);
+  var base = path.resolve('.');
+  var file = base + "/public/documents/visa-application.pdf";
   res.download(file);
 });
 
