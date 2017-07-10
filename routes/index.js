@@ -6,6 +6,8 @@ var fs = require('fs');
 var mongoose = require('mongoose');
 var multiparty = require('connect-multiparty')
 var multipartyMiddleware = multiparty()
+var logger = require("../utils/logger");
+var UserSchema = require('../models/user.js')
 
 router.get('/', function(req, res, next) {
   res.render('home', {
@@ -83,48 +85,55 @@ router.get('/profile', isLoggedIn, function(req, res) {
   });
 });
 
-router.put('/update/:id', function(req, res) {
-  user.findById(user.local.id, function(err, bear) {
+router.post('/update/:id', function(req, res) {
+  UserSchema.update({
+    email: req.body.email
+  }, {
+    local: {
+      fname: req.body.fname,
+      lname: req.body.lname,
+      country: req.body.country,
+      occupation: req.body.occupation,
+      company: req.body.company,
+      phone: req.body.phone,
+      structural: req.body.structural,
+      civils: req.body.civils,
+      electrical: req.body.electrical,
+      plumbing: req.body.plumbing,
+      carpentry: req.body.carpentry,
+      roofing: req.body.roofing,
+      flooring: req.body.flooring,
+      shopfitting: req.body.shopfitting,
+      doorswindows: req.body.doorswindows,
+      network: req.body.network,
+      hardware: req.body.hardware,
+      telecom: req.body.telecom,
+      biometrics: req.body.biometrics,
+      airconditioning: req.body.airconditioning,
+      software: req.body.software
+    }
+  }, function(err, user) {
+    console.log("Original user: ")
     console.log(req.body);
-    user.local.fname = req.body.fname;
-    user.local.lname = req.body.lname;
-    user.local.country = req.body.country;
-    user.local.occupation = req.body.occupation;
-    user.local.company = req.body.company;
-    user.local.phone = req.body.phone;
-    user.local.structural = req.body.structural;
-    user.local.civils = req.body.civils;
-    user.local.electrical = req.body.electrical;
-    user.local.plumbing = req.body.plumbing;
-    user.local.carpentry = req.body.carpentry;
-    user.local.roofing = req.body.roofing;
-    user.local.flooring = req.body.flooring;
-    user.local.shopfitting = req.body.shopfitting;
-    user.local.doorswindows = req.body.doorswindows;
-    user.local.network = req.body.network;
-    user.local.hardware = req.body.hardware;
-    user.local.telecom = req.body.telecom;
-    user.local.biometrics = req.body.biometrics;
-    user.local.airconditioning = req.body.airconditioning;
-    user.local.software = req.body.software;
-    user.local.email = email;
-    user.local.password = user.generateHash(
-      password);
-
-    user.save(function(err) {
-      if (err)
-        res.send(err);
-      res.json({
-        message: 'Profile updated!'
+    if (err) return err;
+    UserSchema.findOne({
+      email: req.body.email
+    }, function(err, user) {
+      console.log("Returned user: ")
+      console.log(user);
+      if (err) return err;
+      return res.render('profile', {
+        active: {
+          profile: true
+        },
+        message: 'User updated!',
+        user: user,
       });
     });
-
-    res.render('profile', {
-      active: {
-        profile: true
-      },
-      user: req.user,
-    });
+    // user.local.email: req.body.email,
+    // user.local.password: user.generateHash(
+    //   password);
+    //
   });
 });
 
