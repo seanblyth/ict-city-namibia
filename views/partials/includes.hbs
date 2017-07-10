@@ -12,4 +12,18 @@
   <link rel="stylesheet" href="/stylesheets/style.css" crossorigin="anonymous">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/1000hz-bootstrap-validator/0.11.5/validator.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-formhelpers/2.3.0/js/bootstrap-formhelpers.min.js"></script>
+  {{#if profile}}
+  <script  type="text/javascript">
+    window.onload = function(){
+      var sel = document.getElementById('country');
+      var opts = sel.options;
+      for (var opt, j = 0; opt = opts[j]; j++) {
+        if (opt.value == '{{user.local.country}}') {
+          sel.selectedIndex = j;
+          break;
+        }
+      }
+    }
+  </script>
+  {{/if}}
 </head>
