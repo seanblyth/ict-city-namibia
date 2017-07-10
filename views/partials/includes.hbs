@@ -15,7 +15,7 @@
   {{#if profile}}
   <script  type="text/javascript">
     window.onload = function(){
-      var sel = document.getElementById('country');
+      var sel = window.getElementById('country');
       var opts = sel.options;
       for (var opt, j = 0; opt = opts[j]; j++) {
         if (opt.value == '{{user.local.country}}') {

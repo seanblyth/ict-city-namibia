@@ -83,11 +83,13 @@ router.get('/profile', isLoggedIn, function(req, res) {
     },
     user: req.user,
   });
+  console.warn("WHAT THE ACTUAL FUCK!!!!!!!!")
+  console.warn(req.user);
 });
 
 router.post('/update/:id', function(req, res) {
-  UserSchema.update({
-    email: req.body.email
+  UserSchema.findOneAndUpdate({
+    _id: req.params.id
   }, {
     local: {
       fname: req.body.fname,
@@ -110,17 +112,15 @@ router.post('/update/:id', function(req, res) {
       telecom: req.body.telecom,
       biometrics: req.body.biometrics,
       airconditioning: req.body.airconditioning,
-      software: req.body.software
+      software: req.body.software,
+      email: req.body.email,
+      password: req.body.password,
     }
   }, function(err, user) {
-    console.log("Original user: ")
-    console.log(req.body);
     if (err) return err;
     UserSchema.findOne({
-      email: req.body.email
+      _id: req.params.id
     }, function(err, user) {
-      console.log("Returned user: ")
-      console.log(user);
       if (err) return err;
       return res.render('profile', {
         active: {
