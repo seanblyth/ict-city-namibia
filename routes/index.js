@@ -10,8 +10,6 @@ var logger = require("../utils/logger");
 var UserSchema = require('../models/user.js')
 
 var isAdmin = function(req) {
-  console.warn("GOT HERE FIRST!!!!!!");
-  console.warn(req.user.local.fname);
   if (req.user) {
     if (req.user.local.fname == "admin") {
       return true;
