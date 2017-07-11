@@ -83,11 +83,11 @@ router.get('/profile', isLoggedIn, function(req, res) {
     },
     user: req.user,
   });
-  console.warn("WHAT THE ACTUAL FUCK!!!!!!!!")
-  console.warn(req.user);
 });
 
 router.post('/update/:id', function(req, res) {
+  console.warn("WHAT THE ACTUAL FUCK!!!!!!!!")
+  console.warn(req.body);
   UserSchema.findOneAndUpdate({
     _id: req.params.id
   }, {
