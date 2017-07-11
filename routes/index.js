@@ -3,19 +3,14 @@ var passport = require('passport');
 var path = require('path');
 var router = express.Router();
 var fs = require('fs');
+var easyzip = require('easy-zip2').EasyZip;
+var ncp = require('ncp').ncp;
+var json2csv = require('json2csv');
 var mongoose = require('mongoose');
 var multiparty = require('connect-multiparty')
 var multipartyMiddleware = multiparty()
 var logger = require("../utils/logger");
-var UserSchema = require('../models/user.js')
-
-var isAdmin = function(req) {
-  if (req.user) {
-    if (req.user.local.fname == "admin") {
-      return true;
-    }
-  }
-}
+var UserSchema = require('../models/user.js');
 
 router.get('/', function(req, res, next) {
   admin = isAdmin(req);
@@ -52,6 +47,7 @@ router.get('/visa/download', function(req, res) {
 });
 
 router.post('/upload', multipartyMiddleware, function(req, res, next) {
+  admin = isAdmin(req);
   fs.readFile(req.files.uploadFile.path, function(err, data) {
     var newPath = "./public/uploads/" + getDateTime() + '-' + req.files
       .uploadFile.name;
@@ -60,6 +56,7 @@ router.post('/upload', multipartyMiddleware, function(req, res, next) {
         active: {
           home: true
         },
+        admin: admin,
         user: req.user,
       });
     });
@@ -87,17 +84,17 @@ router.get('/signup', function(req, res) {
 });
 
 router.get('/profile', isLoggedIn, function(req, res) {
+  admin = isAdmin(req);
   res.render('profile', {
     active: {
       profile: true
     },
+    admin: admin,
     user: req.user,
   });
 });
 
 router.post('/update/:id', function(req, res) {
-  console.warn("WHAT THE ACTUAL FUCK!!!!!!!!");
-  console.warn(req.body);
   UserSchema.findOneAndUpdate({
     _id: req.params.id
   }, {
@@ -140,10 +137,6 @@ router.post('/update/:id', function(req, res) {
         user: user,
       });
     });
-    // user.local.email: req.body.email,
-    // user.local.password: user.generateHash(
-    //   password);
-    //
   });
 });
 
@@ -169,7 +162,90 @@ router.post('/login', passport.authenticate('local-login', {
   failureFlash: true,
 }));
 
+router.get('/download-apps', function(req, res) {
+  var zip = new easyzip();
+  zip.zipFolder('./public/uploads/', function() {
+    zip.writeToResponse(res, 'visa-applications');
+    ncp('./public/uploads/', './public/uploads-done/', function(err) {
+      if (err) {
+        return console.error(err);
+      }
+      rmDir('./public/uploads/');
+
+      if (!fs.existsSync('./public/uploads/')) {
+        fs.mkdirSync('./public/uploads/');
+      }
+    });
+  });
+});
+
+router.get('/csv', function(req, res) {
+  var fields = ['local.fname', 'local.lname', 'local.email',
+    'local.country', 'local.occupation',
+    'local.company', 'local.phone', 'local.software',
+    'local.airconditioning', 'local.biometrics',
+    'local.telecom', 'local.hardware', 'local.network',
+    'local.doorswindows', 'local.shopfitting',
+    'local.flooring', 'local.roofing', 'local.carpentry',
+    'local.plumbing', 'local.electrical',
+    'local.civils', 'local.structural'
+  ];
+
+  var fieldNames = ['First Name', 'Surname', 'Email',
+    'Country code', 'Occupation',
+    'Company', 'Phone number', 'Software',
+    'Air conditioning', 'Biometrics',
+    'Telecommunication', 'Computer hardware', 'Computer networking',
+    'Doors and Windows', 'Shopfitting',
+    'Flooring', 'Roofing', 'Carpentry',
+    'Plumbing', 'Electrical',
+    'Civils', 'Structural'
+  ];
+
+  UserSchema.find({}, function(err, users) {
+    console.warn(
+      "----------------------------------------------------------");
+    console.warn(users);
+    var userData = users;
+    var csv = json2csv({
+      data: userData,
+      fields: fields,
+      fieldNames: fieldNames
+    });
+
+    fs.writeFile('./public/csv/data.csv', csv, function(err) {
+      if (err) throw err;
+      res.download('./public/csv/data.csv');
+    });
+  });
+});
+
 module.exports = router;
+
+var isAdmin = function(req) {
+  if (req.user) {
+    if (req.user.local.fname == "admin") {
+      return true;
+    }
+  }
+}
+
+var rmDir = function(dirPath) {
+  try {
+    var files = fs.readdirSync(dirPath);
+  } catch (e) {
+    return;
+  }
+  if (files.length > 0)
+    for (var i = 0; i < files.length; i++) {
+      var filePath = dirPath + '/' + files[i];
+      if (fs.statSync(filePath).isFile())
+        fs.unlinkSync(filePath);
+      else
+        rmDir(filePath);
+    }
+  fs.rmdirSync(dirPath);
+};
 
 function isLoggedIn(req, res, next) {
   if (req.isAuthenticated())
