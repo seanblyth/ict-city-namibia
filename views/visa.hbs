@@ -14,16 +14,14 @@
       <li>Scan it,</li>
       <li>and upload it on this page!</li>
     </ol><br>
-    <a href="/visa/download" class="btn btn-warning btn-md">Download application</a><br><br>
+    <a href="/visa/download" class="btn btn-primary btn-md">Download application</a><br><br>
     <ol>
       <li>Browse for your completed application</li>
       <li>and press the "Upload application button!"</li>
     </ol><br>
     <form action='/upload' method='post' encType="multipart/form-data">
-      <label class="btn btn-warning btn-file">
-        Browse <input type="file" style="display: none;" name="uploadFile" id="uploadFile">
-      </label>
-      <input type="submit" class="btn btn-warning btn-md" value="Upload application" />
+      <label class="control-label">Choose Visa Application for upload</label>
+        <input type="file" class="file" name="uploadFile" id="uploadFile">
     </form>
   </div>
 </div>

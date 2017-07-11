@@ -20,6 +20,10 @@
         {{#if user}}
           <li id="visa" class="{{#if visa}}active{{/if}}"><a href="/visa">Visa Application</a></li>
           <li id="profile" class="{{#if profile}}active{{/if}}"><a href="/profile">Profile</a></li>
+          {{#if admin}}
+            <li id="csv" class="{{#if csv}}active{{/if}}"><a href="/profile">Download CSV Data</a></li>
+            <li id="applications" class="{{#if download-apps}}active{{/if}}"><a href="/profile">Download Applications</a></li>
+          {{/if}}
         {{/if}}
       </ul>
       <ul class="nav navbar-nav navbar-right">

@@ -9,11 +9,23 @@ var multipartyMiddleware = multiparty()
 var logger = require("../utils/logger");
 var UserSchema = require('../models/user.js')
 
+var isAdmin = function(req) {
+  console.warn("GOT HERE FIRST!!!!!!");
+  console.warn(req.user.local.fname);
+  if (req.user) {
+    if (req.user.local.fname == "admin") {
+      return true;
+    }
+  }
+}
+
 router.get('/', function(req, res, next) {
+  admin = isAdmin(req);
   res.render('home', {
     active: {
       home: true
     },
+    admin: admin,
     user: req.user,
   });
 });
@@ -86,7 +98,7 @@ router.get('/profile', isLoggedIn, function(req, res) {
 });
 
 router.post('/update/:id', function(req, res) {
-  console.warn("WHAT THE ACTUAL FUCK!!!!!!!!")
+  console.warn("WHAT THE ACTUAL FUCK!!!!!!!!");
   console.warn(req.body);
   UserSchema.findOneAndUpdate({
     _id: req.params.id
