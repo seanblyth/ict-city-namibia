@@ -164,18 +164,20 @@ router.post('/login', passport.authenticate('local-login', {
 
 router.get('/download-apps', function(req, res) {
   var zip = new easyzip();
-  zip.zipFolder('./public/uploads/', function() {
+  zip.zipFolder('./ict-city-namibia/public/uploads/', function() {
     zip.writeToResponse(res, 'visa-applications');
-    ncp('./public/uploads/', './public/uploads-done/', function(err) {
-      if (err) {
-        return console.error(err);
-      }
-      rmDir('./public/uploads/');
+    ncp('./ict-city-namibia/public/uploads/',
+      './ict-city-namibia/public/uploads-done/',
+      function(err) {
+        if (err) {
+          return console.error(err);
+        }
+        rmDir('./ict-city-namibia/public/uploads/');
 
-      if (!fs.existsSync('./public/uploads/')) {
-        fs.mkdirSync('./public/uploads/');
-      }
-    });
+        if (!fs.existsSync('./ict-city-namibia/public/uploads/')) {
+          fs.mkdirSync('./ict-city-namibia/public/uploads/');
+        }
+      });
   });
 });
 
@@ -215,7 +217,7 @@ router.get('/csv', function(req, res) {
 
     fs.writeFile('./public/csv/data.csv', csv, function(err) {
       if (err) throw err;
-      res.download('./public/csv/data.csv');
+      res.download('./ict-city-namibia/public/csv/data.csv');
     });
   });
 });

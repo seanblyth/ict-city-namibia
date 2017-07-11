@@ -1,4 +1,5 @@
 logs/
+public/csv/
 public/uploads/
 public/uploads-done/
 node_modules/
