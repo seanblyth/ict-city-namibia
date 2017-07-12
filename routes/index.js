@@ -1,6 +1,7 @@
 var express = require('express');
 var passport = require('passport');
 var path = require('path');
+var resolve = require('path').resolve;
 var router = express.Router();
 var fs = require('fs');
 var easyzip = require('easy-zip2').EasyZip;
@@ -42,15 +43,15 @@ router.get('/visa', function(req, res, next) {
 });
 
 router.get('/visa/download', function(req, res) {
-  var file = "./public/documents/visa-application.pdf";
+  var file = resolve("./public/documents/visa-application.pdf");
   res.download(file);
 });
 
 router.post('/upload', multipartyMiddleware, function(req, res, next) {
   admin = isAdmin(req);
   fs.readFile(req.files.uploadFile.path, function(err, data) {
-    var newPath = "./public/uploads/" + getDateTime() + '-' + req.files
-      .uploadFile.name;
+    var newPath = "./public/uploads/" + getDateTime() + '-' +
+      req.files.uploadFile.name;
     fs.writeFile(newPath, data, function(err) {
       res.render('home', {
         active: {
@@ -164,18 +165,18 @@ router.post('/login', passport.authenticate('local-login', {
 
 router.get('/download-apps', function(req, res) {
   var zip = new easyzip();
-  zip.zipFolder('./public/uploads/', function() {
+  zip.zipFolder(resolve('./public/uploads/'), function() {
     zip.writeToResponse(res, 'visa-applications');
-    ncp('./public/uploads/',
-      './public/uploads-done/',
+    ncp(resolve('./public/uploads/'),
+      resolve('./public/uploads-done/'),
       function(err) {
         if (err) {
           return console.error(err);
         }
-        rmDir('./public/uploads/');
+        rmDir(resolve('./public/uploads/'));
 
-        if (!fs.existsSync('./public/uploads/')) {
-          fs.mkdirSync('./public/uploads/');
+        if (!fs.existsSync(resolve('./public/uploads/'))) {
+          fs.mkdirSync(resolve('./public/uploads/'));
         }
       });
   });
