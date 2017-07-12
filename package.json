@@ -6,6 +6,7 @@
     "start": "nodemon ./bin/www"
   },
   "dependencies": {
+    "app-root-dir": "^1.0.2",
     "bcrypt": "^1.0.2",
     "bcrypt-nodejs": "latest",
     "body-parser": "~1.17.1",
