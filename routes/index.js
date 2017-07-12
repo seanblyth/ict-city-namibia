@@ -220,12 +220,10 @@ router.get('/csv', function(req, res) {
       fieldNames: fieldNames
     });
 
-    fs.writeFile(path.join(appRoot,
-        "/public/csv/data.csv"),
+    fs.writeFile(path.join(appRoot, "/public/csv/data.csv"), csv,
       function(err) {
         if (err) throw err;
-        res.download(path.join(appRoot,
-          "/public/csv/data.csv"));
+        res.download(path.join(appRoot, "/public/csv/data.csv"));
       });
   });
 });
