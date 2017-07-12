@@ -42,7 +42,7 @@ router.get('/visa', function(req, res, next) {
 });
 
 router.get('/visa/download', function(req, res) {
-  var file = "./ict-city-namibia/public/documents/visa-application.pdf";
+  var file = "./public/documents/visa-application.pdf";
   res.download(file);
 });
 
@@ -164,18 +164,18 @@ router.post('/login', passport.authenticate('local-login', {
 
 router.get('/download-apps', function(req, res) {
   var zip = new easyzip();
-  zip.zipFolder('./ict-city-namibia/public/uploads/', function() {
+  zip.zipFolder('./public/uploads/', function() {
     zip.writeToResponse(res, 'visa-applications');
-    ncp('./ict-city-namibia/public/uploads/',
-      './ict-city-namibia/public/uploads-done/',
+    ncp('./public/uploads/',
+      './public/uploads-done/',
       function(err) {
         if (err) {
           return console.error(err);
         }
-        rmDir('./ict-city-namibia/public/uploads/');
+        rmDir('./public/uploads/');
 
-        if (!fs.existsSync('./ict-city-namibia/public/uploads/')) {
-          fs.mkdirSync('./ict-city-namibia/public/uploads/');
+        if (!fs.existsSync('./public/uploads/')) {
+          fs.mkdirSync('./public/uploads/');
         }
       });
   });
@@ -217,7 +217,7 @@ router.get('/csv', function(req, res) {
 
     fs.writeFile('./public/csv/data.csv', csv, function(err) {
       if (err) throw err;
-      res.download('./ict-city-namibia/public/csv/data.csv');
+      res.download('./public/csv/data.csv');
     });
   });
 });
@@ -226,7 +226,7 @@ module.exports = router;
 
 var isAdmin = function(req) {
   if (req.user) {
-    if (req.user.local.fname == "admin") {
+    if (req.user.local.email == "admin@local.com") {
       return true;
     }
   }
