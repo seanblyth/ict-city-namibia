@@ -25,19 +25,23 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/about', function(req, res, next) {
+  admin = isAdmin(req);
   res.render('about', {
     active: {
       about: true
     },
+    admin: admin,
     user: req.user,
   });
 });
 
 router.get('/visa', function(req, res, next) {
+  admin = isAdmin(req);
   res.render('visa', {
     active: {
       visa: true
     },
+    admin: admin,
     user: req.user,
   });
 });
@@ -67,21 +71,25 @@ router.post('/upload', multipartyMiddleware, function(req, res, next) {
 })
 
 router.get('/login', function(req, res, next) {
+  admin = isAdmin(req);
   res.render('login', {
     active: {
       login: true
     },
     message: req.flash('loginMessage'),
+    admin: admin,
     user: req.user,
   });
 });
 
 router.get('/signup', function(req, res) {
+  admin = isAdmin(req);
   res.render('signup', {
     active: {
       signup: true
     },
     message: req.flash('signupMessage'),
+    admin: admin,
     user: req.user,
   });
 });
@@ -132,11 +140,13 @@ router.post('/update/:id', function(req, res) {
       _id: req.params.id
     }, function(err, user) {
       if (err) return err;
+      admin = isAdmin(req);
       return res.render('profile', {
         active: {
           profile: true
         },
         message: 'User updated!',
+        admin: admin,
         user: user,
       });
     });
