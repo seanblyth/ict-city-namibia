@@ -43,8 +43,6 @@ router.get('/visa', function(req, res, next) {
 });
 
 router.get('/visa/download', function(req, res) {
-  console.warn('********** CURENT WORKING DIR ***********');
-  console.warn(appRoot);
   var file = path.join(appRoot, "/public/documents/visa-application.pdf");
   res.download(file);
 });
@@ -52,9 +50,11 @@ router.get('/visa/download', function(req, res) {
 router.post('/upload', multipartyMiddleware, function(req, res, next) {
   admin = isAdmin(req);
   fs.readFile(req.files.uploadFile.path, function(err, data) {
-    var newPath = "./public/uploads/" + getDateTime() + '-' +
+    var newPath = path.join(appRoot, "/public/uploads/") + getDateTime() +
+      '-' +
       req.files.uploadFile.name;
-    fs.writeFile(newPath, data, function(err) {
+    fs.writeFile(newPath, data, function(
+      err) {
       res.render('home', {
         active: {
           home: true
@@ -167,31 +167,35 @@ router.post('/login', passport.authenticate('local-login', {
 
 router.get('/download-apps', function(req, res) {
   var zip = new easyzip();
-  zip.zipFolder('./public/uploads/', function() {
+  zip.zipFolder(path.join(appRoot, "/public/uploads/"), function() {
     zip.writeToResponse(res, 'visa-applications');
-    ncp('./public/uploads/',
-      './public/uploads-done/',
+    ncp(path.join(appRoot, "/public/uploads/"),
+      path.join(appRoot, "/public/uploads-done/"),
       function(err) {
         if (err) {
           return console.error(err);
         }
-        rmDir('./public/uploads/');
+        rmDir(path.join(appRoot, "/public/uploads/"));
 
-        if (!fs.existsSync('./public/uploads/')) {
-          fs.mkdirSync('./public/uploads/');
+        if (!fs.existsSync(path.join(appRoot,
+            "/public/uploads/"))) {
+          fs.mkdirSync(path.join(appRoot,
+            "/public/uploads/"));
         }
       });
   });
 });
 
 router.get('/csv', function(req, res) {
-  var fields = ['local.fname', 'local.lname', 'local.email',
+  var fields = ['local.fname', 'local.lname',
+    'local.email',
     'local.country', 'local.occupation',
     'local.company', 'local.phone', 'local.software',
     'local.airconditioning', 'local.biometrics',
     'local.telecom', 'local.hardware', 'local.network',
     'local.doorswindows', 'local.shopfitting',
-    'local.flooring', 'local.roofing', 'local.carpentry',
+    'local.flooring', 'local.roofing',
+    'local.carpentry',
     'local.plumbing', 'local.electrical',
     'local.civils', 'local.structural'
   ];
@@ -200,7 +204,8 @@ router.get('/csv', function(req, res) {
     'Country code', 'Occupation',
     'Company', 'Phone number', 'Software',
     'Air conditioning', 'Biometrics',
-    'Telecommunication', 'Computer hardware', 'Computer networking',
+    'Telecommunication', 'Computer hardware',
+    'Computer networking',
     'Doors and Windows', 'Shopfitting',
     'Flooring', 'Roofing', 'Carpentry',
     'Plumbing', 'Electrical',
@@ -208,9 +213,6 @@ router.get('/csv', function(req, res) {
   ];
 
   UserSchema.find({}, function(err, users) {
-    console.warn(
-      "----------------------------------------------------------");
-    console.warn(users);
     var userData = users;
     var csv = json2csv({
       data: userData,
@@ -218,10 +220,13 @@ router.get('/csv', function(req, res) {
       fieldNames: fieldNames
     });
 
-    fs.writeFile('./public/csv/data.csv', csv, function(err) {
-      if (err) throw err;
-      res.download('./public/csv/data.csv');
-    });
+    fs.writeFile(path.join(appRoot,
+        "/public/csv/data.csv"),
+      function(err) {
+        if (err) throw err;
+        res.download(path.join(appRoot,
+          "/public/csv/data.csv"));
+      });
   });
 });
 
@@ -284,6 +289,7 @@ function getDateTime() {
   var day = date.getDate();
   day = (day < 10 ? "0" : "") + day;
 
-  return year + ":" + month + ":" + day + ":" + hour + ":" + min + ":" +
+  return year + ":" + month + ":" + day + ":" +
+    hour + ":" + min + ":" +
     sec;
 }
