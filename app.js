@@ -61,7 +61,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(session({
-  secret: 'shhsecret'
+  secret: 'maserati is beautiful'
 }));
 app.use(passport.initialize());
 app.use(passport.session());

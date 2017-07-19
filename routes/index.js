@@ -12,6 +12,10 @@ var multipartyMiddleware = multiparty()
 var logger = require("../utils/logger");
 var UserSchema = require('../models/user.js');
 var appRoot = require('app-root-dir').get();
+var bcrypt = require('bcrypt-nodejs');
+var async = require('async');
+var crypto = require('crypto');
+var nodemailer = require('nodemailer');
 
 router.get('/', function(req, res, next) {
   admin = isAdmin(req);
@@ -235,6 +239,141 @@ router.get('/csv', function(req, res) {
         if (err) throw err;
         res.download(path.join(appRoot, "/public/csv/data.csv"));
       });
+  });
+});
+
+router.get('/reset/:token', function(req, res) {
+  UserSchema.findOne({
+    resetPasswordToken: req.params.token,
+    resetPasswordExpires: {
+      $gt: Date.now()
+    }
+  }, function(err, user) {
+    if (!user) {
+      res.render('forgot', {
+        message: 'Password reset token is invalid or has expired.',
+      });
+    }
+    res.render('reset', {
+      resetPasswordToken: req.params.token,
+      user: req.user
+    });
+  });
+});
+
+router.post('/reset/:token', function(req, res) {
+  async.waterfall([
+    function(done) {
+      UserSchema.findOne({
+        resetPasswordToken: req.params.token,
+        resetPasswordExpires: {
+          $gt: Date.now()
+        }
+      }, function(err, user) {
+        if (!user) {
+          res.render('forgot', {
+            message: 'Password reset token is invalid or has expired.',
+          });
+        }
+        console.warn('*** user reset ***');
+        console.warn(user);
+        user.local.password = req.body.password;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+
+        user.save(function(err) {
+          req.logIn(user, function(err) {
+            done(err, user);
+          });
+        });
+      });
+    },
+    function(user, done) {
+      var smtpTransport = nodemailer.createTransport({
+        host: 'smtp-relay.sendinblue.com',
+        port: 587,
+        auth: {
+          user: 'sean@outfront.co.za',
+          pass: '8ZqATr2B7KPOLz9U'
+        }
+      });
+      var mailOptions = {
+        to: user.local.email,
+        from: 'passwordreset@demo.com',
+        subject: 'Your password has been changed',
+        text: 'Hello,\n\n' +
+          'This is a confirmation that the password for your account ' +
+          user.local.email + ' has just been changed.\n'
+      };
+      smtpTransport.sendMail(mailOptions, function(err) {
+        done(err);
+      });
+    }
+  ], function(err) {
+    res.redirect('/');
+  });
+});
+
+router.get('/forgot', function(req, res) {
+  res.render('forgot', {
+    user: req.user
+  });
+});
+
+router.post('/forgot', function(req, res, next) {
+  async.waterfall([
+    function(done) {
+      crypto.randomBytes(20, function(err, buf) {
+        var token = buf.toString('hex');
+        done(err, token);
+      });
+    },
+    function(token, done) {
+      UserSchema.findOne({
+        'local.email': req.body.email
+      }, function(err, user) {
+        if (!user) {
+          res.render('forgot', {
+            message: 'No account with that email address exists.',
+          });
+        }
+
+        user.resetPasswordToken = token;
+        user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+
+        user.save(function(err) {
+          done(err, token, user);
+        });
+      });
+    },
+    function(token, user, done) {
+      var smtpTransport = nodemailer.createTransport({
+        host: 'smtp-relay.sendinblue.com',
+        port: 587,
+        auth: {
+          user: 'sean@outfront.co.za',
+          pass: '8ZqATr2B7KPOLz9U'
+        }
+      });
+      var mailOptions = {
+        to: user.local.email,
+        from: 'passwordreset@demo.com',
+        subject: 'ICT City Password Reset',
+        text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+          'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+          'http://' + req.headers.host + '/reset/' + token + '\n\n' +
+          'If you did not request this, please ignore this email and your password will remain unchanged.\n'
+      };
+      smtpTransport.sendMail(mailOptions, function(err) {
+        req.flash('info', 'An e-mail has been sent to ' + user.local
+          .email +
+          ' with further instructions.');
+        done(err, 'done');
+      });
+    }
+  ], function(err) {
+    if (err) return next(err);
+    res.redirect('/');
   });
 });
 

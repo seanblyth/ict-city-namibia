@@ -1,0 +1,25 @@
+<div class="container">
+  <div class="col-sm-6 col-sm-offset-3">
+    <h1><span class="fa fa-sign-in"></span> Forgot Password</h1>
+    <hr>
+    <!-- show any messages that come back with authentication -->
+    {{#if message}}
+        <div class="alert alert-danger">{{message}}</div>
+    {{/if}}
+    <!-- LOGIN FORM -->
+    <form method="post" data-toggle="validator" role="form">
+        <div class="form-group">
+            <label>New Password</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+            <div class="help-block with-errors"></div>
+        </div>
+        <div class="form-group">
+            <label>Confirm Password</label>
+            <input type="password" class="form-control" id="confirm" name="confirm" required>
+            <div class="help-block with-errors"></div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-md">Update Password</button>
+        <a href="/" class="btn btn-primary btn-md">Cancel</a>
+    </form>
+  </div>
+</div>
